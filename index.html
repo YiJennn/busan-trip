@@ -330,6 +330,34 @@
   .cat-transport .dot { background: var(--sun); }
   .cat-transport .tag { background: #fef3d6; color: #a07a2a; }
 
+  /* ===== Area Labels on Map ===== */
+  .area-label {
+    background: var(--card-bg);
+    border: 2.5px solid var(--border);
+    border-radius: 12px;
+    padding: 4px 12px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    white-space: nowrap;
+    box-shadow: 2px 2px 0px rgba(62,58,57,0.12);
+    text-align: center;
+    line-height: 1.4;
+  }
+  .area-label .area-sub {
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--text-light);
+    display: block;
+  }
+  .area-label.area-sea {
+    background: #d4ecf7;
+    border-color: #8bbdd4;
+    color: #4a7a8f;
+    font-size: 12px;
+    border-radius: 20px;
+  }
+
   /* ===== Map Header ===== */
   .map-header {
     position: relative;
@@ -1322,6 +1350,28 @@ function initMap() {
   }).addTo(map);
   markersLayer = L.layerGroup().addTo(map);
   routeLayer = L.layerGroup().addTo(map);
+
+  // Area labels
+  const areas = [
+    { lat:35.1578, lng:129.058, name:'西面', sub:'서면', cls:'' },
+    { lat:35.160, lng:129.165, name:'海雲台', sub:'해운대', cls:'' },
+    { lat:35.153, lng:129.118, name:'廣安里', sub:'광안리', cls:'' },
+    { lat:35.098, lng:129.030, name:'南浦洞', sub:'남포동', cls:'' },
+    { lat:35.097, lng:129.010, name:'甘川文化村', sub:'감천문화마을', cls:'' },
+    { lat:35.070, lng:129.058, name:'影島', sub:'영도', cls:'' },
+    { lat:35.180, lng:128.938, name:'✈️ 金海機場', sub:'김해공항', cls:'' },
+    { lat:35.155, lng:129.055, name:'田浦洞', sub:'전포동', cls:'' },
+    { lat:35.140, lng:129.200, name:'🌊 東海', sub:'', cls:'area-sea' },
+  ];
+  const areaLayer = L.layerGroup().addTo(map);
+  areas.forEach(a => {
+    const icon = L.divIcon({
+      className: '',
+      html: `<div class="area-label ${a.cls}">${a.name}${a.sub?'<span class="area-sub">'+a.sub+'</span>':''}</div>`,
+      iconSize: [0, 0], iconAnchor: [0, 0]
+    });
+    L.marker([a.lat, a.lng], { icon, interactive: false }).addTo(areaLayer);
+  });
 }
 
 function renderMap() {
@@ -1478,7 +1528,7 @@ function loadChecklist() {
 }
 
 // ===== PERSISTENCE =====
-const DATA_VERSION = 'v17';
+const DATA_VERSION = 'v18';
 function save() { localStorage.setItem('busan-trip', JSON.stringify(tripData)); localStorage.setItem('busan-trip-ver', DATA_VERSION); }
 function load() {
   const ver = localStorage.getItem('busan-trip-ver');
