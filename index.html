@@ -1170,7 +1170,7 @@ let tripData = [
   // ===== Day 3 (1/22 四) — 滑雪日 =====
   { day:3, time:'07:00', name:'從西面飯店出發', desc:'帶好保暖衣物，準備滑雪去！', cat:'stay', lat:35.1578, lng:129.0598, transport:'步行到集合點 5分鐘' },
   { day:3, time:'07:30', name:'出發前往滑雪場', desc:'建議 KKday/Klook 訂一日套裝含接駁\n或三人包車前往（車程約90分鐘）', cat:'transport', lat:35.1578, lng:129.0598, transport:'包車/接駁 約90分鐘' },
-  { day:3, time:'09:30', name:'伊甸園山谷滑雪場', desc:'❗ 必去：滑雪＋裝備租借＋纜車\n初學者可報教學班（約1hr）\n費用約 ₩70,000–90,000/人', cat:'ski', lat:35.4847, lng:128.9961, transport:'包車/接駁 約90分鐘回' },
+  { day:3, time:'09:30', name:'伊甸園山谷滑雪場', desc:'❗ 必去：滑雪＋裝備租借＋纜車\n初學者可報教學班（約1hr）\n💰 KKday 一日套裝約 NT$3,900/人（含接送+雪票+雪衣+雪板）', cat:'ski', lat:35.4847, lng:128.9961, transport:'包車/接駁 約90分鐘回' },
   { day:3, time:'17:30', name:'西面烤肉一條街', desc:'滑完雪大口吃烤韓牛/豬五花補體力', cat:'food', lat:35.1578, lng:129.0598, transport:'步行 5分鐘' },
   { day:3, time:'19:00', name:'西面地下街', desc:'❗ 必逛：衣服、飾品、美妝、零食\n釜山最大地下購物街，價格親民好逛', cat:'shop', lat:35.1570, lng:129.0590, transport:'步行 5分鐘' },
   { day:3, time:'21:00', name:'回西面飯店', desc:'滑雪一整天，好好休息', cat:'stay', lat:35.1578, lng:129.0598, transport:'' },
@@ -1565,7 +1565,7 @@ function loadChecklist() {
 }
 
 // ===== PERSISTENCE =====
-const DATA_VERSION = 'v26';
+const DATA_VERSION = 'v27';
 function save() { localStorage.setItem('busan-trip', JSON.stringify(tripData)); localStorage.setItem('busan-trip-ver', DATA_VERSION); }
 function load() {
   const ver = localStorage.getItem('busan-trip-ver');
