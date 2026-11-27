@@ -1112,7 +1112,7 @@ let tripData = [
   // ===== Day 2 (1/21 三) — 海雲台市場＋海岸列車＋新世界百貨＋廣安里 =====
   { day:2, time:'08:00', name:'從飯店出發', desc:'西面站搭地鐵2號線前往海雲台', cat:'stay', lat:35.1578, lng:129.0598, transport:'地鐵 20分鐘' },
   { day:2, time:'08:30', name:'海雲台市場', desc:'❗ 必吃：31公分刀削麵！超長麵條超有噱頭\n還有魚板、堅果黑糖餅（씨앗호떡）、現烤海鮮', cat:'food', lat:35.1631, lng:129.1636, transport:'步行 15分鐘' },
-  { day:2, time:'10:00', name:'海岸列車（Blue Line Park）', desc:'❗ 必搭：海雲台尾浦 → 松亭\n天空膠囊列車沿海岸線行駛，絕美海景\n建議提前線上預約（容易滿）\n單程約30分鐘', cat:'sight', lat:35.1627, lng:129.1796, transport:'列車終點步行' },
+  { day:2, time:'10:00', name:'天空膠囊（Blue Line Park）', desc:'❗ 必搭：海雲台尾浦 → 松亭\n2-4人一車的透明膠囊，高架軌道沿海岸行駛\n絕美海景超好拍！建議提前線上預約（容易滿）\n單程約30分鐘', cat:'sight', lat:35.1627, lng:129.1796, transport:'列車終點步行' },
   { day:2, time:'11:30', name:'松亭海水浴場＋松亭咖啡街', desc:'松亭站下車，海邊悠閒散步＋喝咖啡', cat:'sight', lat:35.1783, lng:129.2007, transport:'地鐵 15分鐘' },
   { day:2, time:'12:30', name:'新世界百貨 Centum City', desc:'❗ 必逛：金氏世界紀錄最大百貨公司\n美食街、免稅店、頂樓溜冰場\n伴手禮＋退稅一次搞定', cat:'shop', lat:35.1695, lng:129.1316, transport:'地鐵 15分鐘' },
   { day:2, time:'14:30', name:'生章魚', desc:'❗ 必吃：釜山「活章魚一條街」或廣安里附近生章魚店\n現切活章魚沾麻油鹽，觸腳還在動！', cat:'food', lat:35.1540, lng:129.1190, transport:'步行 10分鐘' },
@@ -1141,7 +1141,7 @@ let tripData = [
   // ===== Day 5 (1/24 六) — 白淺灘＋樂天百貨＋機場 =====
   { day:5, time:'08:30', name:'從飯店出發', desc:'行李寄放飯店，輕裝出發\n搭地鐵到南浦再轉公車前往影島', cat:'stay', lat:35.1578, lng:129.0598, transport:'地鐵+公車 30分鐘' },
   { day:5, time:'09:00', name:'白淺灘文化村', desc:'影島海岸懸崖上的彩色村落\n沿步道慢慢走，看絕美海景\n早上光線最適合拍照，不趕慢慢逛', cat:'sight', lat:35.0720, lng:129.0580, transport:'公車+地鐵 30分鐘回西面' },
-  { day:5, time:'12:00', name:'豬肉湯飯', desc:'釜山國民美食，離開前再吃一碗\n推薦：松亭三代豬肉湯飯', cat:'food', lat:35.1580, lng:129.0600, transport:'步行 5分鐘' },
+  { day:5, time:'12:00', name:'水邊廣安里豬肉湯飯', desc:'釜山國民美食，離開前再吃一碗\n在地人推薦的老店，湯頭濃郁', cat:'food', lat:35.1530, lng:129.1185, transport:'地鐵 20分鐘回西面' },
   { day:5, time:'13:30', name:'樂天百貨 西面店', desc:'最後一波購物＋退稅，買伴手禮', cat:'shop', lat:35.1571, lng:129.0618, transport:'步行 5分鐘' },
   { day:5, time:'16:00', name:'回飯店拿行李', desc:'取行李，準備前往機場', cat:'stay', lat:35.1578, lng:129.0598, transport:'地鐵+輕軌 約40分鐘' },
   { day:5, time:'17:00', name:'金海機場', desc:'提早到機場逛免稅店\n21:50 起飛 → 桃園 23:40 抵達', cat:'transport', lat:35.1796, lng:128.9382, transport:'' },
@@ -1478,7 +1478,7 @@ function loadChecklist() {
 }
 
 // ===== PERSISTENCE =====
-const DATA_VERSION = 'v15';
+const DATA_VERSION = 'v17';
 function save() { localStorage.setItem('busan-trip', JSON.stringify(tripData)); localStorage.setItem('busan-trip-ver', DATA_VERSION); }
 function load() {
   const ver = localStorage.getItem('busan-trip-ver');
