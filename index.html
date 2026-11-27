@@ -1149,9 +1149,9 @@ let tripData = [
   { day:1, time:'06:10', name:'抵達金海機場', desc:'桃園 02:40 起飛 → 金海 06:10 抵達\n💰 機場先換少量韓元（約₩100,000–150,000）\n搭輕軌＋地鐵前往海雲台', cat:'transport', lat:35.1796, lng:128.9382, transport:'輕軌+地鐵 約70分鐘' },
   { day:1, time:'07:30', name:'海雲台飯店寄行李', desc:'先寄放行李，輕裝出發', cat:'stay', lat:35.1588, lng:129.1600, transport:'步行 10分鐘' },
   { day:1, time:'08:00', name:'海雲台市場', desc:'❗ 必吃：31公分刀削麵！超長麵條超有噱頭\n還有魚板、堅果黑糖餅（씨앗호떡）、現烤海鮮\n❗ 1月草莓正當季，又大又甜又便宜！', cat:'food', lat:35.1631, lng:129.1636, transport:'步行 10分鐘' },
-  { day:1, time:'09:30', name:'海雲台海水浴場散步', desc:'冬日海邊散步，感受釜山海洋氛圍', cat:'sight', lat:35.1588, lng:129.1600, transport:'步行 15分鐘' },
-  { day:1, time:'11:00', name:'Spa Land Centum City', desc:'❗ 開通行證！韓國最大汗蒸幕（🎫 通行證）\n多種主題池＋休息區，紅眼班機後好好放鬆補眠\n💰 原價 ₩22,000/人', cat:'sight', lat:35.1695, lng:129.1316, transport:'地鐵 10分鐘' },
-  { day:1, time:'15:30', name:'Skyline Luge', desc:'❗ 通行證景點（🎫 通行證，可玩2趟）\n坐小車從山坡滑下來，海景超美，刺激又好玩\n📹 可免費借頭戴式攝影機，看完影片喜歡再買 ₩10,000', cat:'sight', lat:35.1920, lng:129.2130, transport:'地鐵+東海線 約35分鐘（或計程車20分鐘）' },
+  { day:1, time:'09:30', name:'海雲台海水浴場散步', desc:'冬日海邊散步，感受釜山海洋氛圍', cat:'sight', lat:35.1588, lng:129.1600, transport:'地鐵 10分鐘' },
+  { day:1, time:'11:00', name:'Spa Land Centum City', desc:'❗ 開通行證！韓國最大汗蒸幕（🎫 通行證）\n多種主題池＋休息區，紅眼班機後好好放鬆補眠\n💰 原價 ₩22,000/人', cat:'sight', lat:35.1695, lng:129.1316, transport:'地鐵+東海線 約35分鐘（或計程車20分鐘）' },
+  { day:1, time:'15:30', name:'Skyline Luge', desc:'❗ 通行證景點（🎫 通行證，可玩2趟）\n坐小車從山坡滑下來，海景超美，刺激又好玩\n📹 可免費借頭戴式攝影機，看完影片喜歡再買 ₩10,000', cat:'sight', lat:35.1920, lng:129.2130, transport:'地鐵+東海線 約35分鐘回海雲台（或計程車20分鐘）' },
   { day:1, time:'17:00', name:'Yacht Holic 遊艇', desc:'❗ 通行證景點（🎫 通行證）\n傍晚出海看夕陽，海上欣賞海雲台海岸線\n💰 原價 ₩30,000/人', cat:'sight', lat:35.1562, lng:129.1452, transport:'步行 10分鐘' },
   { day:1, time:'19:00', name:'人蔘雞湯', desc:'❗ 必吃：海雲台周邊蔘雞湯店\n冬天暖胃首選，一人一鍋', cat:'food', lat:35.1590, lng:129.1620, transport:'步行 10分鐘' },
   { day:1, time:'20:30', name:'荒嶺山烽火台', desc:'⚡ 有體力再去：海雲台最高觀景點\n360度俯瞰海雲台＋廣安大橋夜景\n搭計程車上山約10分鐘', cat:'sight', lat:35.1515, lng:129.1472, transport:'計程車 10分鐘' },
@@ -1565,7 +1565,7 @@ function loadChecklist() {
 }
 
 // ===== PERSISTENCE =====
-const DATA_VERSION = 'v25';
+const DATA_VERSION = 'v26';
 function save() { localStorage.setItem('busan-trip', JSON.stringify(tripData)); localStorage.setItem('busan-trip-ver', DATA_VERSION); }
 function load() {
   const ver = localStorage.getItem('busan-trip-ver');
