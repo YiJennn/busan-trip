@@ -1205,9 +1205,9 @@ let tripData = [
 
   // ===== Day 5 (1/24 六) — 白淺灘＋樂天百貨＋機場 =====
   { day:5, time:'08:30', name:'從西面飯店出發', desc:'行李寄放飯店，輕裝出發\n搭地鐵到南浦再轉公車前往影島', cat:'stay', lat:35.1578, lng:129.0598, transport:'地鐵+公車 30分鐘' },
-  { day:5, time:'09:00', name:'白淺灘文化村', desc:'影島海岸懸崖上的彩色村落\n沿步道慢慢走，看絕美海景\n早上光線最適合拍照，不趕慢慢逛', cat:'sight', lat:35.0720, lng:129.0580, transport:'公車+地鐵 30分鐘回西面' },
-  { day:5, time:'12:00', name:'水邊廣安里豬肉湯飯', desc:'釜山國民美食，離開前再吃一碗\n在地人推薦的老店，湯頭濃郁', cat:'food', lat:35.1530, lng:129.1185, transport:'地鐵 20分鐘回西面' },
-  { day:5, time:'13:30', name:'樂天百貨 西面店', desc:'最後一波購物＋退稅，買伴手禮', cat:'shop', lat:35.1571, lng:129.0618, transport:'步行 5分鐘' },
+  { day:5, time:'09:00', name:'白淺灘文化村', desc:'影島海岸懸崖上的彩色村落\n沿步道慢慢走，看絕美海景\n早上光線最適合拍照，不趕慢慢逛', cat:'sight', lat:35.0720, lng:129.0580, transport:'步行或公車 10分鐘' },
+  { day:5, time:'11:00', name:'Cafe Age 吊索咖啡廳', desc:'影島絕壁上的吊索咖啡廳\n搭吊索滑過海崖取咖啡，超刺激\n邊喝咖啡邊看無敵海景', cat:'sight', lat:35.0765, lng:129.0460, transport:'步行或公車 10分鐘' },
+  { day:5, time:'12:30', name:'樂天百貨 西面店', desc:'最後一波購物＋退稅，買伴手禮', cat:'shop', lat:35.1571, lng:129.0618, transport:'公車+地鐵 40分鐘回西面' },
   { day:5, time:'16:00', name:'回飯店拿行李', desc:'取行李，準備前往機場', cat:'stay', lat:35.1578, lng:129.0598, transport:'地鐵+輕軌 約40分鐘' },
   { day:5, time:'17:00', name:'金海機場', desc:'提早到機場逛免稅店\n21:50 起飛 → 桃園 23:40 抵達', cat:'transport', lat:35.1796, lng:128.9382, transport:'' },
 ];
@@ -1584,7 +1584,7 @@ function loadChecklist() {
 }
 
 // ===== PERSISTENCE =====
-const DATA_VERSION = 'v19';
+const DATA_VERSION = 'v20';
 function save() { localStorage.setItem('busan-trip', JSON.stringify(tripData)); localStorage.setItem('busan-trip-ver', DATA_VERSION); }
 function load() {
   const ver = localStorage.getItem('busan-trip-ver');
