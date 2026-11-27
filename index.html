@@ -1,0 +1,1495 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>釜山五日遊 2027/1/20–1/24</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+  :root {
+    --bg: #FFFCF6;
+    --text: #3E3A39;
+    --text-light: #7A7574;
+    --card-bg: #FFFFFF;
+    --coral: #F2A497;
+    --sun: #F6D27A;
+    --sky: #A8D3E6;
+    --leaf: #B9DAA5;
+    --border: #3E3A39;
+    --radius: 24px;
+  }
+
+  @font-face {
+    font-family: 'Huninn';
+    src: url('https://cdn.jsdelivr.net/gh/niclin/font@master/jf-openhuninn-2.0.woff2') format('woff2');
+    font-display: swap;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Huninn', 'Noto Sans TC', 'PingFang TC', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+  }
+
+  /* ===== Hero Banner ===== */
+  .hero {
+    position: relative;
+    background: linear-gradient(180deg, var(--sky) 0%, #d4ecf7 60%, var(--bg) 100%);
+    padding: 40px 20px 60px;
+    text-align: center;
+    overflow: hidden;
+    border-bottom: 3px dashed var(--border);
+  }
+  .hero h1 {
+    font-size: 1.8rem;
+    color: var(--text);
+    position: relative;
+    z-index: 2;
+  }
+  .hero .subtitle {
+    font-size: 1rem;
+    color: var(--text-light);
+    margin-top: 4px;
+    position: relative;
+    z-index: 2;
+  }
+  .hero .dates {
+    display: inline-block;
+    background: var(--coral);
+    color: #fff;
+    padding: 6px 20px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-top: 12px;
+    border: 2px solid var(--border);
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Hero decorations */
+  .hero-cloud {
+    position: absolute;
+    background: rgba(255,255,255,0.7);
+    border-radius: 50px;
+    height: 20px;
+  }
+  .cloud1 { width: 80px; top: 20px; left: 10%; animation: drift 9s ease-in-out infinite; }
+  .cloud2 { width: 60px; top: 40px; right: 15%; animation: drift 7s ease-in-out infinite reverse; }
+  .cloud3 { width: 100px; top: 55px; left: 50%; animation: drift 11s ease-in-out infinite; }
+  .hero-sun {
+    position: absolute;
+    top: 10px;
+    right: 30px;
+    width: 50px;
+    height: 50px;
+    background: var(--sun);
+    border-radius: 50%;
+    border: 3px solid var(--border);
+    animation: spin 20s linear infinite;
+    z-index: 1;
+  }
+  .hero-plane {
+    position: absolute;
+    font-size: 28px;
+    top: 30px;
+    left: 20%;
+    animation: fly 6s ease-in-out infinite;
+    z-index: 2;
+  }
+  .hero-wave {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 30px;
+    z-index: 1;
+  }
+  .hero-wave svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  @keyframes drift { 0%,100%{transform:translateX(0)} 50%{transform:translateX(30px)} }
+  @keyframes fly { 0%,100%{transform:translate(0,0) rotate(-5deg)} 50%{transform:translate(40px,-15px) rotate(5deg)} }
+  @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+  @keyframes bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+  @keyframes pop { from{transform:scale(0.9);opacity:0} to{transform:scale(1);opacity:1} }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+
+  /* ===== Tabs ===== */
+  .tab-bar {
+    display: flex;
+    background: var(--card-bg);
+    border-bottom: 3px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 14px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    border: none;
+    background: transparent;
+    color: var(--text-light);
+    transition: all .3s;
+    font-family: inherit;
+  }
+  .tab-btn.active {
+    color: var(--text);
+    background: var(--sun);
+    border-bottom: 3px solid var(--border);
+  }
+  .tab-btn:hover { color: var(--text); background: #fef3d6; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* ===== Summary Bar ===== */
+  .summary-bar {
+    display: flex;
+    gap: 16px;
+    padding: 16px 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+    background: var(--card-bg);
+    border-bottom: 2px dashed #ddd;
+  }
+  .summary-stat { text-align: center; }
+  .summary-stat .num {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--coral);
+  }
+  .summary-stat .label { font-size: 0.75rem; color: var(--text-light); }
+
+  /* ===== Day selector ===== */
+  .day-bar {
+    display: flex;
+    gap: 8px;
+    padding: 16px 20px;
+    overflow-x: auto;
+    background: var(--bg);
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .day-chip {
+    padding: 8px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    border: 2px dashed var(--text-light);
+    color: var(--text-light);
+    background: transparent;
+    white-space: nowrap;
+    transition: all .3s;
+    font-family: inherit;
+  }
+  .day-chip.active {
+    background: var(--sun);
+    color: var(--text);
+    border: 2px solid var(--border);
+    transform: translateY(-2px);
+  }
+  .day-chip:hover {
+    border-color: var(--border);
+    color: var(--text);
+    background: #fef9ec;
+  }
+
+  /* ===== Container ===== */
+  .container { max-width: 640px; margin: 0 auto; padding: 0 16px; }
+
+  /* ===== Timeline ===== */
+  .timeline { max-width: 640px; margin: 0 auto; padding: 20px 16px; }
+  .timeline-item {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 8px;
+    cursor: grab;
+    user-select: none;
+    animation: pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+  .timeline-item.dragging { opacity: 0.4; }
+  .timeline-item.drag-over { border-top: 3px solid var(--coral); }
+  .time-col {
+    width: 60px;
+    text-align: right;
+    padding-top: 18px;
+    font-size: 0.8rem;
+    color: var(--text-light);
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .dot-line {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 3px solid var(--border);
+    flex-shrink: 0;
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .line {
+    width: 0;
+    flex: 1;
+    min-height: 20px;
+    border-left: 2px dashed #ccc;
+  }
+  .card {
+    flex: 1;
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 16px;
+    border: 3px solid var(--border);
+    transition: transform .2s, box-shadow .2s;
+    position: relative;
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 4px 4px 0px var(--border);
+  }
+  .card h3 { font-size: 1rem; margin-bottom: 4px; color: var(--text); }
+  .card p { font-size: 0.82rem; color: var(--text-light); line-height: 1.6; }
+  .card .tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    padding: 2px 10px;
+    border-radius: 20px;
+    margin-right: 4px;
+    margin-top: 8px;
+    border: 2px solid var(--border);
+    font-weight: 600;
+  }
+  .card .must-badge {
+    position: absolute;
+    top: -8px;
+    right: 12px;
+    background: var(--coral);
+    color: #fff;
+    font-size: 0.65rem;
+    padding: 2px 10px;
+    border-radius: 10px;
+    border: 2px solid var(--border);
+    font-weight: 700;
+  }
+
+  /* Transport badge */
+  .transport-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 0 4px 90px;
+    font-size: 0.75rem;
+    color: var(--text-light);
+  }
+  .transport-badge span {
+    padding: 2px 12px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    border: 2px solid var(--border);
+  }
+  .transport-badge .t-rail { background: var(--sky); color: var(--text); }
+  .transport-badge .t-bus { background: var(--leaf); color: var(--text); }
+  .transport-badge .t-walk { background: #fff; color: var(--text); }
+  .transport-badge .t-car { background: var(--sun); color: var(--text); }
+  .transport-badge .t-default { background: #f0ebe4; color: var(--text); }
+
+  /* Category colors */
+  .cat-food .dot { background: var(--coral); }
+  .cat-food .tag { background: #fde8e4; color: #c0564a; }
+  .cat-sight .dot { background: var(--sky); }
+  .cat-sight .tag { background: #dff0f9; color: #4a8fa8; }
+  .cat-shop .dot { background: #d4b5f7; }
+  .cat-shop .tag { background: #f0e6ff; color: #7c5aad; }
+  .cat-ski .dot { background: var(--leaf); }
+  .cat-ski .tag { background: #e6f5de; color: #5a8c4a; }
+  .cat-stay .dot { background: #ccc; }
+  .cat-stay .tag { background: #f0ebe4; color: var(--text-light); }
+  .cat-transport .dot { background: var(--sun); }
+  .cat-transport .tag { background: #fef3d6; color: #a07a2a; }
+
+  /* ===== Map Header ===== */
+  .map-header {
+    position: relative;
+    border-bottom: 3px solid var(--border);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    overflow: hidden;
+  }
+  .map-header .mini-map-wrap {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    border: 3px solid var(--border);
+    overflow: hidden;
+    flex-shrink: 0;
+    box-shadow: 3px 3px 0px rgba(62,58,57,0.15);
+  }
+  .map-header .mini-map-wrap #mini-map {
+    width: 100%;
+    height: 100%;
+  }
+  .map-header .map-title-area {
+    text-align: left;
+  }
+  .map-header .map-title-area h2 {
+    font-size: 1.2rem;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .map-header .map-title-area p {
+    font-size: 0.8rem;
+    color: var(--text-light);
+    line-height: 1.5;
+  }
+  .map-header .map-title-area .geo-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+  .map-header .geo-tag {
+    font-size: 0.65rem;
+    padding: 2px 10px;
+    border-radius: 20px;
+    border: 2px solid var(--border);
+    font-weight: 600;
+    background: var(--card-bg);
+  }
+
+  /* ===== Map ===== */
+  #map { height: calc(100vh - 120px); width: 100%; border-top: 3px solid var(--border); }
+  .map-legend {
+    position: absolute;
+    bottom: 30px;
+    left: 10px;
+    background: var(--card-bg);
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    border: 3px solid var(--border);
+    z-index: 800;
+    font-size: 0.75rem;
+  }
+  .map-legend div { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
+  .map-legend .legend-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--border); }
+  .route-info-panel {
+    position: absolute;
+    top: 70px;
+    right: 10px;
+    width: 280px;
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    border: 3px solid var(--border);
+    z-index: 800;
+    padding: 16px;
+  }
+  .route-info-panel h3 { font-size: 0.9rem; color: var(--coral); margin-bottom: 10px; font-weight: 700; }
+  .route-item { padding: 8px 0; border-bottom: 2px dashed #eee; font-size: 0.8rem; }
+  .route-item:last-child { border: none; }
+  .route-from-to { color: var(--text); font-weight: 600; }
+  .route-detail { color: var(--text-light); margin-top: 2px; }
+
+  /* ===== Modal ===== */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(62,58,57,.4);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(4px);
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    border: 3px solid var(--border);
+    padding: 24px;
+    width: 90%;
+    max-width: 460px;
+  }
+  .modal h2 { margin-bottom: 16px; font-size: 1.1rem; color: var(--coral); font-weight: 700; }
+  .modal label { display: block; font-size: 0.8rem; color: var(--text-light); margin: 10px 0 4px; }
+  .modal input, .modal select, .modal textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 12px;
+    border: 2px solid #ddd;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 0.9rem;
+    font-family: inherit;
+  }
+  .modal input:focus, .modal select:focus, .modal textarea:focus {
+    outline: none;
+    border-color: var(--coral);
+  }
+  .modal textarea { height: 60px; resize: vertical; }
+  .modal-btns { display: flex; gap: 10px; margin-top: 16px; }
+  .modal-btns button {
+    flex: 1;
+    padding: 10px;
+    border-radius: 12px;
+    border: 2px solid var(--border);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: transform 0.15s;
+  }
+  .modal-btns button:hover { transform: translateY(-2px); }
+  .btn-save { background: var(--sun); color: var(--text); }
+  .btn-cancel { background: var(--card-bg); color: var(--text); }
+  .btn-delete { background: var(--coral); color: #fff; }
+
+  .btn-add {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--coral);
+    color: #fff;
+    border: 3px solid var(--border);
+    font-size: 28px;
+    cursor: pointer;
+    z-index: 999;
+    box-shadow: 3px 3px 0px var(--border);
+    transition: transform 0.15s;
+    font-family: inherit;
+  }
+  .btn-add:hover { transform: translateY(-3px); box-shadow: 3px 6px 0px var(--border); }
+
+  /* Leaflet custom marker */
+  .custom-marker { background: none; border: none; }
+  .marker-pin {
+    width: 30px;
+    height: 30px;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--border);
+    box-shadow: 2px 2px 0px rgba(0,0,0,.2);
+  }
+  .marker-pin span { transform: rotate(45deg); font-size: 14px; }
+  .marker-label {
+    position: absolute;
+    top: -8px;
+    left: 36px;
+    white-space: nowrap;
+    background: var(--card-bg);
+    border: 2px solid var(--border);
+    padding: 2px 10px;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  /* ===== Flight Cards in Hero ===== */
+  .flight-cards {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 16px;
+    position: relative;
+    z-index: 2;
+  }
+  .flight-card {
+    background: var(--card-bg);
+    border: 2.5px solid var(--border);
+    border-radius: 16px;
+    padding: 10px 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.78rem;
+    box-shadow: 2px 2px 0px rgba(62,58,57,0.12);
+    min-width: 220px;
+  }
+  .flight-card .flight-icon {
+    font-size: 1.3rem;
+    flex-shrink: 0;
+  }
+  .flight-card .flight-info { text-align: left; }
+  .flight-card .flight-label {
+    font-weight: 700;
+    font-size: 0.7rem;
+    color: var(--coral);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .flight-card .flight-route {
+    color: var(--text);
+    font-weight: 600;
+    font-size: 0.82rem;
+  }
+  .flight-card .flight-time {
+    color: var(--text-light);
+    font-size: 0.72rem;
+  }
+
+  /* ===== Checklist ===== */
+  .checklist-section {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 20px 16px;
+  }
+  .checklist-group {
+    background: var(--card-bg);
+    border: 3px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .checklist-group h3 {
+    font-size: 1rem;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px dashed #ddd;
+  }
+  .checklist-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    font-size: 0.88rem;
+    border-bottom: 1px solid #f0ebe4;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .checklist-item:last-child { border-bottom: none; }
+  .checklist-item input[type="checkbox"] {
+    display: none;
+  }
+  .checklist-item .check-box {
+    width: 22px;
+    height: 22px;
+    border: 2.5px solid var(--border);
+    border-radius: 6px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg);
+    transition: all 0.2s;
+    font-size: 14px;
+  }
+  .checklist-item.checked .check-box {
+    background: var(--leaf);
+    color: #fff;
+  }
+  .checklist-item.checked .check-text {
+    text-decoration: line-through;
+    color: var(--text-light);
+  }
+  .check-text { flex: 1; }
+  .check-note {
+    font-size: 0.72rem;
+    color: var(--text-light);
+    margin-left: 32px;
+    margin-top: -4px;
+    padding-bottom: 4px;
+  }
+
+  /* ===== Hotel & Transport Tab ===== */
+  .hotel-section {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 20px 16px;
+  }
+  .hotel-card {
+    background: var(--card-bg);
+    border: 3px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+    position: relative;
+  }
+  .hotel-card h3 {
+    font-size: 1rem;
+    margin-bottom: 8px;
+  }
+  .hotel-card .hotel-status {
+    display: inline-block;
+    font-size: 0.65rem;
+    padding: 2px 10px;
+    border-radius: 20px;
+    border: 2px solid var(--border);
+    font-weight: 700;
+    position: absolute;
+    top: 16px;
+    right: 16px;
+  }
+  .hotel-status.pending { background: var(--sun); color: var(--text); }
+  .hotel-status.booked { background: var(--leaf); color: #fff; }
+  .hotel-detail {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 6px 0;
+    font-size: 0.82rem;
+    color: var(--text-light);
+  }
+  .hotel-detail .icon { flex-shrink: 0; width: 20px; text-align: center; }
+  .hotel-map-wrap {
+    width: 100%;
+    height: 200px;
+    border-radius: 16px;
+    border: 3px solid var(--border);
+    overflow: hidden;
+    margin-top: 12px;
+  }
+  .hotel-map-wrap .hotel-map { width: 100%; height: 100%; }
+  .transport-info-card {
+    background: var(--card-bg);
+    border: 3px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .transport-info-card h3 {
+    font-size: 1rem;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px dashed #ddd;
+  }
+  .transport-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0ebe4;
+    font-size: 0.82rem;
+  }
+  .transport-row:last-child { border-bottom: none; }
+  .transport-row .t-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 2px; }
+  .transport-row .t-title { font-weight: 700; color: var(--text); }
+  .transport-row .t-desc { color: var(--text-light); margin-top: 2px; line-height: 1.5; }
+  .transport-row .t-tag {
+    display: inline-block;
+    font-size: 0.65rem;
+    padding: 1px 8px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    margin-top: 4px;
+    font-weight: 600;
+  }
+
+  /* ===== Footer ===== */
+  .footer {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-light);
+    font-size: 0.75rem;
+    border-top: 2px dashed #ddd;
+    margin-top: 20px;
+  }
+
+  @media (max-width: 600px) {
+    .time-col { width: 46px; font-size: 0.7rem; }
+    .card { padding: 12px; }
+    .route-info-panel { width: 200px; font-size: 0.75rem; padding: 10px; }
+    .hero h1 { font-size: 1.4rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Hero Banner -->
+<div class="hero">
+  <div class="hero-cloud cloud1"></div>
+  <div class="hero-cloud cloud2"></div>
+  <div class="hero-cloud cloud3"></div>
+  <div class="hero-sun"></div>
+  <div class="hero-plane">✈️</div>
+  <h1>🇰🇷 釜山五日遊</h1>
+  <p class="subtitle">冬日釜山・美食 × 滑雪 × 海景</p>
+  <div class="dates">📅 2027 / 1 / 20 (二) – 1 / 24 (六)</div>
+  <div class="flight-cards">
+    <div class="flight-card">
+      <div class="flight-icon">🛫</div>
+      <div class="flight-info">
+        <div class="flight-label">去程 1/20 (二)</div>
+        <div class="flight-route">桃園 TPE → 金海 PUS</div>
+        <div class="flight-time">02:40 出發 → 06:10 抵達</div>
+      </div>
+    </div>
+    <div class="flight-card">
+      <div class="flight-icon">🛬</div>
+      <div class="flight-info">
+        <div class="flight-label">回程 1/24 (六)</div>
+        <div class="flight-route">金海 PUS → 桃園 TPE</div>
+        <div class="flight-time">21:50 出發 → 23:40 抵達</div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-wave">
+    <svg viewBox="0 0 1200 30" preserveAspectRatio="none">
+      <path d="M0,15 Q150,0 300,15 T600,15 T900,15 T1200,15 L1200,30 L0,30 Z" fill="#FFFCF6"/>
+    </svg>
+  </div>
+</div>
+
+<!-- Tabs -->
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('itinerary')">📋 行程表</button>
+  <button class="tab-btn" onclick="switchTab('map')">🗺️ 地圖總覽</button>
+  <button class="tab-btn" onclick="switchTab('hotel')">🏨 住宿交通</button>
+  <button class="tab-btn" onclick="switchTab('checklist')">✅ 準備清單</button>
+</div>
+
+<!-- Tab 1: Itinerary -->
+<div id="tab-itinerary" class="tab-content active">
+  <div class="summary-bar">
+    <div class="summary-stat"><div class="num" id="stat-days">5</div><div class="label">天</div></div>
+    <div class="summary-stat"><div class="num" id="stat-spots">0</div><div class="label">景點</div></div>
+    <div class="summary-stat"><div class="num" id="stat-food">0</div><div class="label">美食</div></div>
+  </div>
+  <div class="day-bar" id="day-bar"></div>
+  <div class="timeline" id="timeline"></div>
+  <div class="footer">✨ 雙擊景點可編輯 · 拖曳可排序 ✨</div>
+  <button class="btn-add" onclick="openAddModal()" title="新增景點">+</button>
+</div>
+
+<!-- Tab 2: Map -->
+<div id="tab-map" class="tab-content">
+  <!-- Map Header with real mini map -->
+  <div class="map-header">
+    <div class="mini-map-wrap">
+      <div id="mini-map"></div>
+    </div>
+    <div class="map-title-area">
+      <h2>🗺️ 釜山五日遊 · 地理總覽</h2>
+      <p>位於韓國東南端，依山傍海的港灣城市</p>
+      <div class="geo-tags">
+        <span class="geo-tag">🌊 東海岸</span>
+        <span class="geo-tag">⛰️ 金井山</span>
+        <span class="geo-tag">🏖️ 海雲台</span>
+        <span class="geo-tag">🌉 廣安大橋</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="day-bar" id="map-day-bar"></div>
+  <div style="position: relative;">
+    <div id="map"></div>
+    <div class="map-legend">
+      <div><div class="legend-dot" style="background:var(--coral)"></div> 美食</div>
+      <div><div class="legend-dot" style="background:var(--sky)"></div> 景點</div>
+      <div><div class="legend-dot" style="background:#d4b5f7"></div> 購物</div>
+      <div><div class="legend-dot" style="background:var(--leaf)"></div> 滑雪</div>
+      <div><div class="legend-dot" style="background:var(--sun)"></div> 交通</div>
+    </div>
+    <div class="route-info-panel" id="route-panel">
+      <h3>🚗 交通資訊</h3>
+      <div id="route-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Tab 3: Hotel & Transport -->
+<div id="tab-hotel" class="tab-content">
+  <div class="hotel-section">
+
+    <!-- 住宿資訊 -->
+    <div class="hotel-card">
+      <span class="hotel-status pending">待預訂</span>
+      <h3>🏨 西面住宿（待確認）</h3>
+      <div class="hotel-detail"><span class="icon">📅</span> 1/20 (二) ~ 1/24 (六)，共 4 晚</div>
+      <div class="hotel-detail"><span class="icon">📍</span> 西面站周邊（地鐵1號線＆2號線交會）</div>
+      <div class="hotel-detail"><span class="icon">👥</span> 3 人</div>
+      <div class="hotel-detail"><span class="icon">💡</span> 建議選西面站步行 5 分鐘內，近地下街入口</div>
+      <div class="hotel-detail"><span class="icon">🔍</span> 推薦搜尋：Lotte Hotel Busan、Aventree Busan、西面商務旅館</div>
+      <div class="hotel-map-wrap">
+        <div id="hotel-map" class="hotel-map"></div>
+      </div>
+    </div>
+
+    <!-- 交通攻略 -->
+    <div class="transport-info-card">
+      <h3>🚇 市區交通</h3>
+      <div class="transport-row">
+        <span class="t-icon">🚈</span>
+        <div>
+          <div class="t-title">釜山地鐵</div>
+          <div class="t-desc">最主要的交通工具，共 4 條線<br>西面站是 1 號線＆2 號線轉運站</div>
+          <span class="t-tag" style="background:#dff0f9;">基本票價 ₩1,450</span>
+        </div>
+      </div>
+      <div class="transport-row">
+        <span class="t-icon">💳</span>
+        <div>
+          <div class="t-title">T-money 交通卡</div>
+          <div class="t-desc">機場便利商店購買（₩2,500 空卡）<br>地鐵、公車、便利商店都能用，有轉乘優惠</div>
+          <span class="t-tag" style="background:#e6f5de;">必備</span>
+        </div>
+      </div>
+      <div class="transport-row">
+        <span class="t-icon">🚌</span>
+        <div>
+          <div class="t-title">市區公車</div>
+          <div class="t-desc">到甘川文化村、海東龍宮寺等地鐵不到的景點</div>
+          <span class="t-tag" style="background:#fef3d6;">₩1,300</span>
+        </div>
+      </div>
+      <div class="transport-row">
+        <span class="t-icon">🚕</span>
+        <div>
+          <div class="t-title">計程車 / KakaoTaxi</div>
+          <div class="t-desc">3 人分攤很划算，起步價 ₩4,800<br>深夜加成 20%，建議用 APP 叫車</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 機場交通 -->
+    <div class="transport-info-card">
+      <h3>✈️ 機場 ↔ 西面</h3>
+      <div class="transport-row">
+        <span class="t-icon">🚈</span>
+        <div>
+          <div class="t-title">輕軌＋地鐵（推薦）</div>
+          <div class="t-desc">金海機場 → 輕軌到沙上站 → 地鐵2號線到西面<br>約 40 分鐘，₩2,050</div>
+          <span class="t-tag" style="background:#dff0f9;">最省錢</span>
+        </div>
+      </div>
+      <div class="transport-row">
+        <span class="t-icon">🚌</span>
+        <div>
+          <div class="t-title">機場巴士</div>
+          <div class="t-desc">機場門口搭乘，直達西面<br>約 50 分鐘，₩7,000</div>
+          <span class="t-tag" style="background:#fef3d6;">最輕鬆</span>
+        </div>
+      </div>
+      <div class="transport-row">
+        <span class="t-icon">🚕</span>
+        <div>
+          <div class="t-title">計程車</div>
+          <div class="t-desc">到西面約 ₩20,000–25,000<br>3 人分攤約每人 ₩7,000–8,000</div>
+          <span class="t-tag" style="background:#f0e6ff;">最快 25 分鐘</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 各日交通摘要 -->
+    <div class="transport-info-card">
+      <h3>📋 每日交通摘要</h3>
+      <div class="transport-row">
+        <span class="t-icon">1️⃣</span>
+        <div>
+          <div class="t-title">Day 1 — 機場→西面</div>
+          <div class="t-desc">輕軌＋地鐵到西面，整天在西面附近活動</div>
+        </div>
+      </div>
+      <div class="transport-row">
+        <span class="t-icon">2️⃣</span>
+        <div>
+          <div class="t-title">Day 2 — 西面→海雲台→廣安里</div>
+          <div class="t-desc">地鐵2號線到海雲台（20分鐘），沿線玩到廣安里再地鐵回西面</div>
+        </div>
+      </div>
+      <div class="transport-row">
+        <span class="t-icon">3️⃣</span>
+        <div>
+          <div class="t-title">Day 3 — 西面→滑雪場→西面</div>
+          <div class="t-desc">包車或接駁巴士來回（約90分鐘單程）</div>
+        </div>
+      </div>
+      <div class="transport-row">
+        <span class="t-icon">4️⃣</span>
+        <div>
+          <div class="t-title">Day 4 — 西面→南浦洞＋甘川</div>
+          <div class="t-desc">地鐵1號線到南浦站（10分鐘），甘川搭公車（20分鐘）</div>
+        </div>
+      </div>
+      <div class="transport-row">
+        <span class="t-icon">5️⃣</span>
+        <div>
+          <div class="t-title">Day 5 — 西面→機場</div>
+          <div class="t-desc">西面購物後，地鐵＋輕軌到機場（40分鐘）</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="footer">📍 訂好飯店後記得更新住宿資訊</div>
+</div>
+
+<!-- Tab 4: Checklist -->
+<div id="tab-checklist" class="tab-content">
+  <div class="checklist-section">
+
+    <div class="checklist-group">
+      <h3>📄 證件＆文件</h3>
+      <div class="checklist-item" onclick="toggleCheck(this)" data-key="cl-passport">
+        <div class="check-box"></div>
+        <span class="check-text">護照（效期6個月以上）</span>
+      </div>
+      <div class="checklist-item" onclick="toggleCheck(this)" data-key="cl-ticket">
+        <div class="check-box"></div>
+        <span class="check-text">機票電子憑證</span>
+      </div>
+      <div class="checklist-item" onclick="toggleCheck(this)" data-key="cl-hotel">
+        <div class="check-box"></div>
+        <span class="check-text">飯店訂房確認信</span>
+      </div>
+      <div class="checklist-item" onclick="toggleCheck(this)" data-key="cl-insurance">
+        <div class="check-box"></div>
+        <span class="check-text">旅遊保險</span>
+      </div>
+      <div class="checklist-item" onclick="toggleCheck(this)" data-key="cl-keta">
+        <div class="check-box"></div>
+        <span class="check-text">K-ETA 電子旅行許可</span>
+      </div>
+    </div>
+
+    <div class="checklist-group">
+      <h3>💰 金錢＆通訊</h3>
+      <div class="checklist-item" onclick="toggleCheck(this)" data-key="cl-won">
+        <div class="check-box"></div>
+        <span class="check-text">換韓元</span>
+      </div>
+      <div class="check-note">建議在台灣先換少量，到釜山南浦洞換匯所匯率更好</div>
+      <div class="checklist-item" onclick="toggleCheck(this)" data-key="cl-card">
+        <div class="check-box"></div>
+        <span class="check-text">信用卡（海外回饋高的）</span>
+      </div>
+      <div class="checklist-item" onclick="toggleCheck(this)" data-key="cl-sim">
+        <div class="check-box"></div>
+        <span class="check-text">韓國 SIM卡 / eSIM / WiFi機</span>
+      </div>
+      <div class="checklist-item" onclick="toggleCheck(this)" data-key="cl-tmoney">
+        <div class="check-box"></div>
+        <span class="check-text">T-money 交通卡</span>
+      </div>
+      <div class="check-note">可在機場便利商店購買，搭地鐵公車都用得到</div>
+    </div>
+
+    <div class="checklist-group">
+      <h3>🧳 行李＆衣物</h3>
+      <div class="checklist-item" onclick="toggleCheck(this)" data-key="cl-coat">
+        <div class="check-box"></div>
+        <span class="check-text">厚外套 / 羽絨衣</span>
+      </div>
+      <div class="check-note">1月釜山約 -3°C ~ 5°C，滑雪更冷</div>
+      <div class="checklist-item" onclick="toggleCheck(this)" data-key="cl-warm">
+        <div class="check-box"></div>
+        <span class="check-text">發熱衣、圍巾、手套、毛帽</span>
+      </div>
+      <div class="checklist-item" onclick="toggleCheck(this)" data-key="cl-shoes">
+        <div class="check-box"></div>
+        <span class="check-text">防滑保暖鞋</span>
+      </div>
+      <div class="checklist-item" onclick="toggleCheck(this)" data-key="cl-toiletry">
+        <div class="check-box"></div>
+        <span class="check-text">盥洗用品＆保養品</span>
+      </div>
+      <div class="checklist-item" onclick="toggleCheck(this)" data-key="cl-charger">
+        <div class="check-box"></div>
+        <span class="check-text">充電器＆行動電源</span>
+      </div>
+      <div class="checklist-item" onclick="toggleCheck(this)" data-key="cl-adapter">
+        <div class="check-box"></div>
+        <span class="check-text">韓國轉接頭（圓形雙孔）</span>
+      </div>
+    </div>
+
+    <div class="checklist-group">
+      <h3>🎿 滑雪＆預約</h3>
+      <div class="checklist-item" onclick="toggleCheck(this)" data-key="cl-ski">
+        <div class="check-box"></div>
+        <span class="check-text">預訂滑雪一日套裝（KKday / Klook）</span>
+      </div>
+      <div class="check-note">含接駁巴士＋裝備租借＋纜車票</div>
+      <div class="checklist-item" onclick="toggleCheck(this)" data-key="cl-blueline">
+        <div class="check-box"></div>
+        <span class="check-text">海岸列車 Blue Line Park 線上預約</span>
+      </div>
+      <div class="check-note">容易滿，建議提前 1–2 週預約</div>
+      <div class="checklist-item" onclick="toggleCheck(this)" data-key="cl-sunscreen">
+        <div class="check-box"></div>
+        <span class="check-text">防曬＆太陽眼鏡（滑雪用）</span>
+      </div>
+    </div>
+
+    <div class="checklist-group">
+      <h3>📱 實用 APP</h3>
+      <div class="checklist-item" onclick="toggleCheck(this)" data-key="cl-naver">
+        <div class="check-box"></div>
+        <span class="check-text">Naver Map（韓國地圖必備）</span>
+      </div>
+      <div class="checklist-item" onclick="toggleCheck(this)" data-key="cl-papago">
+        <div class="check-box"></div>
+        <span class="check-text">Papago 翻譯</span>
+      </div>
+      <div class="checklist-item" onclick="toggleCheck(this)" data-key="cl-kakao">
+        <div class="check-box"></div>
+        <span class="check-text">KakaoTaxi（叫車用）</span>
+      </div>
+    </div>
+
+  </div>
+  <div class="footer">✅ 勾選狀態會自動儲存</div>
+</div>
+
+<!-- Edit/Add Modal -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h2 id="modal-title">編輯景點</h2>
+    <label>名稱</label><input id="m-name" placeholder="景點名稱" />
+    <label>時間</label><input id="m-time" placeholder="09:00" />
+    <label>描述</label><textarea id="m-desc" placeholder="景點描述"></textarea>
+    <label>分類</label>
+    <select id="m-cat">
+      <option value="sight">景點</option>
+      <option value="food">美食</option>
+      <option value="shop">購物</option>
+      <option value="ski">滑雪</option>
+      <option value="stay">住宿</option>
+      <option value="transport">交通</option>
+    </select>
+    <label>緯度</label><input id="m-lat" type="number" step="0.0001" />
+    <label>經度</label><input id="m-lng" type="number" step="0.0001" />
+    <label>到下一站交通</label><input id="m-transport" placeholder="地鐵 15分鐘" />
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal()">取消</button>
+      <button class="btn-delete" id="btn-del" onclick="deleteSpot()">刪除</button>
+      <button class="btn-save" onclick="saveSpot()">儲存</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// ===== DATA =====
+const COLORS = { food:'#F2A497', sight:'#A8D3E6', shop:'#d4b5f7', ski:'#B9DAA5', stay:'#ccc', transport:'#F6D27A' };
+const CAT_LABEL = { food:'美食', sight:'景點', shop:'購物', ski:'滑雪', stay:'住宿', transport:'交通' };
+const ICONS = { food:'🍜', sight:'📸', shop:'🛍️', ski:'⛷️', stay:'🏨', transport:'🚌' };
+
+let tripData = [
+  // ===== Day 1 (1/20 二) — 抵達＋西面 =====
+  { day:1, time:'06:10', name:'抵達金海機場', desc:'桃園 02:40 起飛 → 金海 06:10 抵達\n搭輕軌＋地鐵前往西面', cat:'transport', lat:35.1796, lng:128.9382, transport:'輕軌+地鐵 約40分鐘' },
+  { day:1, time:'07:30', name:'西面飯店寄放行李', desc:'先寄放行李，輕裝出發', cat:'stay', lat:35.1578, lng:129.0598, transport:'步行 3分鐘' },
+  { day:1, time:'08:00', name:'西面換錢所', desc:'機場先換少量搭車用，大筆在西面換\n西面站 7 號出口附近有換錢所', cat:'shop', lat:35.1575, lng:129.0585, transport:'步行 5分鐘' },
+  { day:1, time:'08:30', name:'人蔘雞湯', desc:'❗ 必吃：雙山站「百濟蔘雞湯」\n冬天暖胃首選，一人一鍋\n紅眼班機後來碗熱湯', cat:'food', lat:35.1578, lng:129.0640, transport:'步行 10分鐘' },
+  { day:1, time:'10:00', name:'釜田市場', desc:'在地人的傳統市場，規模大、價格實惠\n乾貨、海鮮、小吃攤通通有\n❗ 1月草莓正當季，又大又甜又便宜！', cat:'food', lat:35.1605, lng:129.0565, transport:'步行 10分鐘' },
+  { day:1, time:'12:00', name:'飯店 Check-in 休息', desc:'紅眼班機補眠，養精蓄銳', cat:'stay', lat:35.1578, lng:129.0598, transport:'步行 5分鐘' },
+  { day:1, time:'17:00', name:'西面地下街', desc:'❗ 必逛：衣服、飾品、美妝、零食\n釜山最大地下購物街，價格親民好逛', cat:'shop', lat:35.1570, lng:129.0590, transport:'步行 5分鐘' },
+  { day:1, time:'20:00', name:'回西面飯店', desc:'早點休息，明天海岸列車行程', cat:'stay', lat:35.1578, lng:129.0598, transport:'' },
+
+  // ===== Day 2 (1/21 三) — 海雲台市場＋海岸列車＋新世界百貨＋廣安里 =====
+  { day:2, time:'08:00', name:'從飯店出發', desc:'西面站搭地鐵2號線前往海雲台', cat:'stay', lat:35.1578, lng:129.0598, transport:'地鐵 20分鐘' },
+  { day:2, time:'08:30', name:'海雲台市場', desc:'❗ 必吃：31公分刀削麵！超長麵條超有噱頭\n還有魚板、堅果黑糖餅（씨앗호떡）、現烤海鮮', cat:'food', lat:35.1631, lng:129.1636, transport:'步行 15分鐘' },
+  { day:2, time:'10:00', name:'海岸列車（Blue Line Park）', desc:'❗ 必搭：海雲台尾浦 → 松亭\n天空膠囊列車沿海岸線行駛，絕美海景\n建議提前線上預約（容易滿）\n單程約30分鐘', cat:'sight', lat:35.1627, lng:129.1796, transport:'列車終點步行' },
+  { day:2, time:'11:30', name:'松亭海水浴場＋松亭咖啡街', desc:'松亭站下車，海邊悠閒散步＋喝咖啡', cat:'sight', lat:35.1783, lng:129.2007, transport:'地鐵 15分鐘' },
+  { day:2, time:'12:30', name:'新世界百貨 Centum City', desc:'❗ 必逛：金氏世界紀錄最大百貨公司\n美食街、免稅店、頂樓溜冰場\n伴手禮＋退稅一次搞定', cat:'shop', lat:35.1695, lng:129.1316, transport:'地鐵 15分鐘' },
+  { day:2, time:'14:30', name:'生章魚', desc:'❗ 必吃：釜山「活章魚一條街」或廣安里附近生章魚店\n現切活章魚沾麻油鹽，觸腳還在動！', cat:'food', lat:35.1540, lng:129.1190, transport:'步行 10分鐘' },
+  { day:2, time:'16:00', name:'廣安里海水浴場', desc:'海邊咖啡廳放空，看廣安大橋', cat:'sight', lat:35.1532, lng:129.1187, transport:'步行 10分鐘' },
+  { day:2, time:'19:00', name:'廣安大橋夜景', desc:'啤酒配夜景，釜山最美大橋燈光秀', cat:'sight', lat:35.1460, lng:129.1250, transport:'地鐵 25分鐘' },
+  { day:2, time:'21:00', name:'回西面飯店', desc:'地鐵2號線回西面', cat:'stay', lat:35.1578, lng:129.0598, transport:'' },
+
+  // ===== Day 3 (1/22 四) — 滑雪日 =====
+  { day:3, time:'07:00', name:'從飯店出發', desc:'帶好保暖衣物，準備滑雪去！', cat:'stay', lat:35.1578, lng:129.0598, transport:'步行到集合點 5分鐘' },
+  { day:3, time:'07:30', name:'出發前往滑雪場', desc:'建議 KKday/Klook 訂一日套裝含接駁\n或三人包車前往（車程約90分鐘）', cat:'transport', lat:35.1578, lng:129.0598, transport:'包車/接駁 約90分鐘' },
+  { day:3, time:'09:30', name:'伊甸園山谷滑雪場', desc:'❗ 必去：滑雪＋裝備租借＋纜車\n初學者可報教學班（約1hr）\n費用約 ₩70,000–90,000/人', cat:'ski', lat:35.4847, lng:128.9961, transport:'包車/接駁 約90分鐘回' },
+  { day:3, time:'17:30', name:'西面烤肉一條街', desc:'滑完雪大口吃烤韓牛/豬五花補體力', cat:'food', lat:35.1578, lng:129.0598, transport:'步行 5分鐘' },
+  { day:3, time:'19:30', name:'西面啤酒街', desc:'滑完雪喝一杯！\n田浦咖啡街周邊，韓式炸雞＋啤酒放鬆', cat:'food', lat:35.1545, lng:129.0630, transport:'步行 5分鐘' },
+  { day:3, time:'21:00', name:'回西面飯店', desc:'滑雪一整天，好好休息', cat:'stay', lat:35.1578, lng:129.0598, transport:'' },
+
+  // ===== Day 4 (1/23 五) — 南浦洞＋甘川 =====
+  { day:4, time:'08:30', name:'從飯店出發', desc:'西面站搭地鐵1號線往南浦方向', cat:'stay', lat:35.1578, lng:129.0598, transport:'地鐵+公車 30分鐘' },
+  { day:4, time:'09:00', name:'甘川文化村', desc:'彩色階梯村落，小王子雕像必拍\n建議早到避開人潮', cat:'sight', lat:35.0973, lng:129.0105, transport:'公車 20分鐘' },
+  { day:4, time:'11:00', name:'BIFF 廣場＋札嘎其市場', desc:'BIFF 吃黑糖餅、辣炒年糕、烤魷魚\n再走去札嘎其，韓國最大海鮮市場\n1樓現買2樓現吃，感受釜山漁港氛圍', cat:'food', lat:35.0976, lng:129.0299, transport:'步行 5分鐘' },
+  { day:4, time:'12:30', name:'醬蟹', desc:'❗ 必吃：南浦洞「Pro醬蟹」或「元祖釜山醬蟹」\n醬油漬生蟹拌飯，三人點一隻分食', cat:'food', lat:35.0995, lng:129.0310, transport:'步行 5分鐘' },
+  { day:4, time:'14:00', name:'南浦洞 光復路＋國際市場', desc:'衣服、美妝、伴手禮一次買齊\n光復路逛完直接走進國際市場，各式韓國小物', cat:'shop', lat:35.1006, lng:129.0291, transport:'步行 5分鐘' },
+  { day:4, time:'16:00', name:'富平罐頭夜市', desc:'各種韓式小吃攤，邊走邊吃到飽', cat:'food', lat:35.1041, lng:129.0271, transport:'步行 10分鐘' },
+  { day:4, time:'18:00', name:'龍頭山公園＋釜山塔', desc:'登塔看市區全景夜景', cat:'sight', lat:35.1008, lng:129.0327, transport:'地鐵 10分鐘' },
+  { day:4, time:'21:00', name:'回西面飯店', desc:'明天最後一天，整理戰利品', cat:'stay', lat:35.1578, lng:129.0598, transport:'' },
+
+  // ===== Day 5 (1/24 六) — 白淺灘＋樂天百貨＋機場 =====
+  { day:5, time:'08:30', name:'從飯店出發', desc:'行李寄放飯店，輕裝出發\n搭地鐵到南浦再轉公車前往影島', cat:'stay', lat:35.1578, lng:129.0598, transport:'地鐵+公車 30分鐘' },
+  { day:5, time:'09:00', name:'白淺灘文化村', desc:'影島海岸懸崖上的彩色村落\n沿步道慢慢走，看絕美海景\n早上光線最適合拍照，不趕慢慢逛', cat:'sight', lat:35.0720, lng:129.0580, transport:'公車+地鐵 30分鐘回西面' },
+  { day:5, time:'12:00', name:'豬肉湯飯', desc:'釜山國民美食，離開前再吃一碗\n推薦：松亭三代豬肉湯飯', cat:'food', lat:35.1580, lng:129.0600, transport:'步行 5分鐘' },
+  { day:5, time:'13:30', name:'樂天百貨 西面店', desc:'最後一波購物＋退稅，買伴手禮', cat:'shop', lat:35.1571, lng:129.0618, transport:'步行 5分鐘' },
+  { day:5, time:'16:00', name:'回飯店拿行李', desc:'取行李，準備前往機場', cat:'stay', lat:35.1578, lng:129.0598, transport:'地鐵+輕軌 約40分鐘' },
+  { day:5, time:'17:00', name:'金海機場', desc:'提早到機場逛免稅店\n21:50 起飛 → 桃園 23:40 抵達', cat:'transport', lat:35.1796, lng:128.9382, transport:'' },
+];
+
+let currentDay = 1;
+let editingIdx = -1;
+let map, markersLayer, routeLayer;
+
+// ===== TABS =====
+const TAB_ORDER = ['itinerary','map','hotel','checklist'];
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', i === TAB_ORDER.indexOf(tab)));
+  TAB_ORDER.forEach(t => document.getElementById('tab-'+t).classList.toggle('active', t===tab));
+  if (tab === 'map') {
+    setTimeout(() => {
+      initMiniMap();
+      if (!map) initMap();
+      else map.invalidateSize();
+      renderMap();
+    }, 100);
+  }
+  if (tab === 'hotel') {
+    setTimeout(() => initHotelMap(), 100);
+  }
+  if (tab === 'checklist') loadChecklist();
+}
+
+// ===== TRANSPORT TYPE DETECTION =====
+function getTransportClass(transport) {
+  if (!transport) return 't-default';
+  const t = transport.toLowerCase();
+  if (t.includes('地鐵') || t.includes('輕軌') || t.includes('列車')) return 't-rail';
+  if (t.includes('公車') || t.includes('接駁')) return 't-bus';
+  if (t.includes('步行')) return 't-walk';
+  if (t.includes('包車') || t.includes('計程車')) return 't-car';
+  return 't-default';
+}
+
+// ===== RENDER TIMELINE =====
+function renderDayBar() {
+  const days = [...new Set(tripData.map(s=>s.day))].sort();
+  ['day-bar','map-day-bar'].forEach(id => {
+    const bar = document.getElementById(id);
+    bar.innerHTML = '';
+    const labels = ['','1/20 (二)','1/21 (三)','1/22 (四)','1/23 (五)','1/24 (六)'];
+    days.forEach(d => {
+      const chip = document.createElement('button');
+      chip.className = 'day-chip' + (d===currentDay?' active':'');
+      chip.textContent = `Day ${d}　${labels[d]||''}`;
+      chip.onclick = () => { currentDay = d; renderAll(); };
+      bar.appendChild(chip);
+    });
+    const all = document.createElement('button');
+    all.className = 'day-chip' + (currentDay===0?' active':'');
+    all.textContent = '全部';
+    all.onclick = () => { currentDay = 0; renderAll(); };
+    bar.appendChild(all);
+  });
+}
+
+function renderTimeline() {
+  const tl = document.getElementById('timeline');
+  const spots = currentDay === 0 ? tripData : tripData.filter(s => s.day === currentDay);
+  tl.innerHTML = '';
+  spots.forEach((spot, i) => {
+    const globalIdx = tripData.indexOf(spot);
+    // Transport badge
+    if (i > 0 && spots[i-1].transport) {
+      const tb = document.createElement('div');
+      tb.className = 'transport-badge';
+      const tClass = getTransportClass(spots[i-1].transport);
+      tb.innerHTML = `➜ <span class="${tClass}">${spots[i-1].transport}</span>`;
+      tl.appendChild(tb);
+    }
+    const item = document.createElement('div');
+    item.className = `timeline-item cat-${spot.cat}`;
+    item.style.animationDelay = `${i * 0.06}s`;
+    item.draggable = true;
+    item.dataset.idx = globalIdx;
+    item.ondragstart = onDragStart;
+    item.ondragover = onDragOver;
+    item.ondrop = onDrop;
+    item.ondragend = onDragEnd;
+    item.ondblclick = () => openEditModal(globalIdx);
+    const isLast = i === spots.length - 1;
+    const isMust = spot.desc.includes('❗');
+    item.innerHTML = `
+      <div class="time-col">${spot.time}</div>
+      <div class="dot-line"><div class="dot">${i+1}</div>${isLast?'':'<div class="line"></div>'}</div>
+      <div class="card">
+        ${isMust ? '<div class="must-badge">必去！</div>' : ''}
+        <h3>${ICONS[spot.cat]} ${spot.name}</h3>
+        <p>${spot.desc.replace(/\n/g,'<br>')}</p>
+        <span class="tag">${CAT_LABEL[spot.cat]}</span>
+        ${currentDay===0?`<span class="tag">Day ${spot.day}</span>`:''}
+      </div>`;
+    tl.appendChild(item);
+  });
+  updateStats();
+}
+
+function updateStats() {
+  document.getElementById('stat-spots').textContent = tripData.filter(s=>s.cat==='sight').length;
+  document.getElementById('stat-food').textContent = tripData.filter(s=>s.cat==='food').length;
+}
+
+// ===== DRAG & DROP =====
+let dragIdx = -1;
+function onDragStart(e) { dragIdx = +e.currentTarget.dataset.idx; e.currentTarget.classList.add('dragging'); }
+function onDragOver(e) { e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
+function onDragEnd(e) { document.querySelectorAll('.timeline-item').forEach(el => el.classList.remove('dragging','drag-over')); }
+function onDrop(e) {
+  e.preventDefault();
+  const targetIdx = +e.currentTarget.dataset.idx;
+  e.currentTarget.classList.remove('drag-over');
+  if (dragIdx === targetIdx) return;
+  const item = tripData.splice(dragIdx, 1)[0];
+  const newTarget = targetIdx > dragIdx ? targetIdx - 1 : targetIdx;
+  item.day = tripData[Math.min(newTarget, tripData.length-1)].day;
+  tripData.splice(newTarget, 0, item);
+  save(); renderAll();
+}
+
+// ===== BUSAN BOUNDARY (simplified GeoJSON) =====
+const BUSAN_BOUNDARY = [
+  [35.3917,128.8530],[35.3850,128.8750],[35.3700,128.9000],[35.3550,128.9200],
+  [35.3400,128.9350],[35.3200,128.9500],[35.3050,128.9700],[35.2900,128.9900],
+  [35.2800,129.0100],[35.2750,129.0350],[35.2700,129.0600],[35.2680,129.0850],
+  [35.2600,129.1050],[35.2500,129.1200],[35.2400,129.1400],[35.2300,129.1600],
+  [35.2150,129.1750],[35.2000,129.1900],[35.1900,129.2100],[35.1850,129.2300],
+  [35.1700,129.2400],[35.1550,129.2350],[35.1400,129.2200],[35.1300,129.2000],
+  [35.1200,129.1800],[35.1100,129.1650],[35.1000,129.1500],[35.0900,129.1350],
+  [35.0800,129.1150],[35.0700,129.0950],[35.0600,129.0800],[35.0500,129.0600],
+  [35.0450,129.0400],[35.0500,129.0200],[35.0550,129.0000],[35.0650,128.9800],
+  [35.0750,128.9650],[35.0900,128.9500],[35.1050,128.9400],[35.1200,128.9300],
+  [35.1400,128.9200],[35.1600,128.9100],[35.1800,128.9050],[35.2000,128.9000],
+  [35.2200,128.8900],[35.2400,128.8850],[35.2600,128.8700],[35.2800,128.8600],
+  [35.3000,128.8550],[35.3200,128.8500],[35.3400,128.8450],[35.3600,128.8450],
+  [35.3800,128.8480],[35.3917,128.8530]
+];
+
+// ===== MAP =====
+let miniMap;
+function initMiniMap() {
+  if (miniMap) return;
+  miniMap = L.map('mini-map', {
+    zoomControl: false, attributionControl: false,
+    dragging: false, scrollWheelZoom: false,
+    doubleClickZoom: false, touchZoom: false,
+    keyboard: false, boxZoom: false
+  }).setView([35.18, 129.07], 10);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/voyager/{z}/{x}/{y}{r}.png', {
+    maxZoom: 19
+  }).addTo(miniMap);
+  // Draw Busan boundary on mini map
+  L.polygon(BUSAN_BOUNDARY, {
+    color: '#F2A497', weight: 3, fillColor: '#F2A497', fillOpacity: 0.15, dashArray: '6 4'
+  }).addTo(miniMap);
+  // Add label
+  L.marker([35.18, 129.07], {
+    icon: L.divIcon({
+      className: '',
+      html: '<div style="font-size:11px;font-weight:700;color:#3E3A39;text-shadow:1px 1px 2px #fff;white-space:nowrap;">📍 부산 釜山</div>',
+      iconSize: [80, 20], iconAnchor: [40, 10]
+    })
+  }).addTo(miniMap);
+}
+
+function initMap() {
+  map = L.map('map', { zoomControl: true }).setView([35.15, 129.06], 12);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/voyager/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; OpenStreetMap &copy; CARTO', maxZoom: 19
+  }).addTo(map);
+  // Draw Busan boundary on main map
+  L.polygon(BUSAN_BOUNDARY, {
+    color: '#F2A497', weight: 2.5, fillColor: '#F2A497', fillOpacity: 0.06, dashArray: '8 5'
+  }).addTo(map);
+  markersLayer = L.layerGroup().addTo(map);
+  routeLayer = L.layerGroup().addTo(map);
+}
+
+function renderMap() {
+  if (!map) return;
+  markersLayer.clearLayers();
+  routeLayer.clearLayers();
+  const spots = currentDay === 0 ? tripData : tripData.filter(s => s.day === currentDay);
+  const bounds = [];
+  spots.forEach((spot, i) => {
+    if (!spot.lat || !spot.lng) return;
+    const color = COLORS[spot.cat];
+    const icon = L.divIcon({
+      className: 'custom-marker',
+      html: `<div class="marker-pin" style="background:${color}"><span>${ICONS[spot.cat]}</span></div>
+             <div class="marker-label">${i+1}. ${spot.name}</div>`,
+      iconSize: [30, 42], iconAnchor: [15, 42]
+    });
+    const marker = L.marker([spot.lat, spot.lng], { icon, draggable: false });
+    marker.bindPopup(`<b>${spot.name}</b><br>${spot.desc.replace(/\n/g,'<br>')}<br><i>${spot.time}</i>`);
+    markersLayer.addLayer(marker);
+    bounds.push([spot.lat, spot.lng]);
+  });
+
+  // Draw route lines
+  for (let i = 0; i < spots.length - 1; i++) {
+    if (!spots[i].lat || !spots[i+1].lat) continue;
+    L.polyline([[spots[i].lat, spots[i].lng],[spots[i+1].lat, spots[i+1].lng]], {
+      color: COLORS[spots[i].cat], weight: 2, opacity: 0.7, dashArray: '8 6'
+    }).addTo(routeLayer);
+  }
+
+  if (bounds.length) map.fitBounds(bounds, { padding: [50, 50] });
+  renderRoutePanel(spots);
+}
+
+function renderRoutePanel(spots) {
+  const panel = document.getElementById('route-list');
+  panel.innerHTML = '';
+  for (let i = 0; i < spots.length - 1; i++) {
+    if (!spots[i].transport) continue;
+    const div = document.createElement('div');
+    div.className = 'route-item';
+    div.innerHTML = `<div class="route-from-to">${spots[i].name} → ${spots[i+1].name}</div>
+                     <div class="route-detail">🚗 ${spots[i].transport}</div>`;
+    panel.appendChild(div);
+  }
+}
+
+// ===== MODAL =====
+function openEditModal(idx) {
+  editingIdx = idx;
+  const s = tripData[idx];
+  document.getElementById('modal-title').textContent = '編輯景點';
+  document.getElementById('m-name').value = s.name;
+  document.getElementById('m-time').value = s.time;
+  document.getElementById('m-desc').value = s.desc;
+  document.getElementById('m-cat').value = s.cat;
+  document.getElementById('m-lat').value = s.lat;
+  document.getElementById('m-lng').value = s.lng;
+  document.getElementById('m-transport').value = s.transport || '';
+  document.getElementById('btn-del').style.display = '';
+  document.getElementById('modal').classList.add('show');
+}
+
+function openAddModal() {
+  editingIdx = -1;
+  document.getElementById('modal-title').textContent = '新增景點';
+  ['m-name','m-time','m-desc','m-transport'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('m-cat').value = 'sight';
+  document.getElementById('m-lat').value = 35.15;
+  document.getElementById('m-lng').value = 129.06;
+  document.getElementById('btn-del').style.display = 'none';
+  document.getElementById('modal').classList.add('show');
+}
+
+function closeModal() { document.getElementById('modal').classList.remove('show'); }
+
+function saveSpot() {
+  const spot = {
+    day: currentDay || 1,
+    time: document.getElementById('m-time').value,
+    name: document.getElementById('m-name').value,
+    desc: document.getElementById('m-desc').value,
+    cat: document.getElementById('m-cat').value,
+    lat: +document.getElementById('m-lat').value,
+    lng: +document.getElementById('m-lng').value,
+    transport: document.getElementById('m-transport').value,
+  };
+  if (editingIdx >= 0) {
+    spot.day = tripData[editingIdx].day;
+    tripData[editingIdx] = spot;
+  } else {
+    tripData.push(spot);
+  }
+  save(); closeModal(); renderAll();
+}
+
+function deleteSpot() {
+  if (editingIdx >= 0 && confirm('確定要刪除此景點？')) {
+    tripData.splice(editingIdx, 1);
+    save(); closeModal(); renderAll();
+  }
+}
+
+// ===== HOTEL MAP =====
+let hotelMap;
+function initHotelMap() {
+  if (hotelMap) return;
+  hotelMap = L.map('hotel-map', {
+    zoomControl: false, attributionControl: false
+  }).setView([35.1578, 129.0598], 15);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/voyager/{z}/{x}/{y}{r}.png', {
+    maxZoom: 19
+  }).addTo(hotelMap);
+  // Hotel area circle
+  L.circle([35.1578, 129.0598], {
+    radius: 300, color: '#F2A497', weight: 2, fillColor: '#F2A497', fillOpacity: 0.15, dashArray: '6 4'
+  }).addTo(hotelMap);
+  // Hotel marker
+  L.marker([35.1578, 129.0598], {
+    icon: L.divIcon({
+      className: 'custom-marker',
+      html: '<div class="marker-pin" style="background:#F6D27A"><span>🏨</span></div><div class="marker-label">西面住宿區域</div>',
+      iconSize: [30, 42], iconAnchor: [15, 42]
+    })
+  }).addTo(hotelMap);
+  // Seomyeon station marker
+  L.marker([35.1579, 129.0590], {
+    icon: L.divIcon({
+      className: '',
+      html: '<div style="font-size:11px;font-weight:700;color:#3E3A39;background:var(--card-bg);border:2px solid #3E3A39;border-radius:10px;padding:1px 8px;white-space:nowrap;">🚇 西面站</div>',
+      iconSize: [80, 20], iconAnchor: [40, 25]
+    })
+  }).addTo(hotelMap);
+}
+
+// ===== CHECKLIST =====
+function toggleCheck(el) {
+  el.classList.toggle('checked');
+  const key = el.dataset.key;
+  const isChecked = el.classList.contains('checked');
+  el.querySelector('.check-box').textContent = isChecked ? '✓' : '';
+  localStorage.setItem(key, isChecked ? '1' : '0');
+}
+
+function loadChecklist() {
+  document.querySelectorAll('.checklist-item').forEach(el => {
+    const key = el.dataset.key;
+    if (localStorage.getItem(key) === '1') {
+      el.classList.add('checked');
+      el.querySelector('.check-box').textContent = '✓';
+    }
+  });
+}
+
+// ===== PERSISTENCE =====
+const DATA_VERSION = 'v15';
+function save() { localStorage.setItem('busan-trip', JSON.stringify(tripData)); localStorage.setItem('busan-trip-ver', DATA_VERSION); }
+function load() {
+  const ver = localStorage.getItem('busan-trip-ver');
+  if (ver === DATA_VERSION) { const d = localStorage.getItem('busan-trip'); if (d) tripData = JSON.parse(d); }
+  else { save(); }
+}
+
+// ===== INIT =====
+function renderAll() { renderDayBar(); renderTimeline(); if (map) renderMap(); }
+load();
+renderAll();
+</script>
+</body>
+</html>
