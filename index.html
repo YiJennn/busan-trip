@@ -153,24 +153,6 @@
   .tab-content { display: none; }
   .tab-content.active { display: block; }
 
-  /* ===== Summary Bar ===== */
-  .summary-bar {
-    display: flex;
-    gap: 16px;
-    padding: 16px 20px;
-    justify-content: center;
-    flex-wrap: wrap;
-    background: var(--card-bg);
-    border-bottom: 2px dashed #ddd;
-  }
-  .summary-stat { text-align: center; }
-  .summary-stat .num {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--coral);
-  }
-  .summary-stat .label { font-size: 0.75rem; color: var(--text-light); }
-
   /* ===== Day selector ===== */
   .day-bar {
     display: flex;
@@ -801,11 +783,6 @@
 
 <!-- Tab 1: Itinerary -->
 <div id="tab-itinerary" class="tab-content active">
-  <div class="summary-bar">
-    <div class="summary-stat"><div class="num" id="stat-days">5</div><div class="label">天</div></div>
-    <div class="summary-stat"><div class="num" id="stat-spots">0</div><div class="label">景點</div></div>
-    <div class="summary-stat"><div class="num" id="stat-food">0</div><div class="label">美食</div></div>
-  </div>
   <div class="day-bar" id="day-bar"></div>
   <div class="timeline" id="timeline"></div>
   <div class="footer">✨ 雙擊景點可編輯 · 拖曳可排序 ✨</div>
@@ -1316,8 +1293,6 @@ function renderTimeline() {
 }
 
 function updateStats() {
-  document.getElementById('stat-spots').textContent = tripData.filter(s=>s.cat==='sight').length;
-  document.getElementById('stat-food').textContent = tripData.filter(s=>s.cat==='food').length;
 }
 
 // ===== DRAG & DROP =====
@@ -1590,7 +1565,7 @@ function loadChecklist() {
 }
 
 // ===== PERSISTENCE =====
-const DATA_VERSION = 'v21';
+const DATA_VERSION = 'v22';
 function save() { localStorage.setItem('busan-trip', JSON.stringify(tripData)); localStorage.setItem('busan-trip-ver', DATA_VERSION); }
 function load() {
   const ver = localStorage.getItem('busan-trip-ver');
